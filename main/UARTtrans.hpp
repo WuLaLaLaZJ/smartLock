@@ -3,6 +3,8 @@
 #pragma once
 
 #include "driver/uart.h" 
+#include <string.h>
+
 #define UART_NUM_FPI UART_NUM_0 //fingerPrintIdentify的意思
 #define UART_NUM_FPI_TX UART_PIN_NO_CHANGE
 #define UART_NUM_FPI_RX UART_PIN_NO_CHANGE
@@ -18,5 +20,7 @@
 void init_uart2fri(void);
 void init_uart2screen(void);
 void init_uart2servo(void);
+
+char threeCharConnect(char char1,char char2,char char3);
 
 #endif

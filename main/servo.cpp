@@ -19,12 +19,12 @@ SERVO::~SERVO(){
 bool SERVO::servo_init(){
     init_uart2servo();
 
-    char servoInitCommand[8];
-    strcat(servoInitCommand, "#");                                                  //这三行拼凑出一个获取舵机ID的指令
-    strcat(servoInitCommand, servoID);
-    strcat(servoInitCommand, "PID!");
+    char servoCommand[16];
+    strcat(servoCommand, "#");                                                  //这三行拼凑出一个获取舵机ID的指令
+    strcat(servoCommand, servoID);
+    strcat(servoCommand, "PID!");
 
-    ESP_ERROR_CHECK((UART_NUM_SERVO,servoInitCommand,strlen(servoInitCommand)));    //发送，然后读取串口
+    ESP_ERROR_CHECK((UART_NUM_SERVO,servoCommand,strlen(servoCommand)));    //发送，然后读取串口
     unsigned int bufferLenth;
     char UARTdata[64];
     ESP_ERROR_CHECK(uart_get_buffered_data_len(UART_NUM_SERVO, &bufferLenth));
@@ -38,8 +38,15 @@ bool SERVO::servo_init(){
 
     char *isOK = NULL;                                                              //串口读到的信息里有“应该”有的返回值吗？
     isOK = strstr(UARTdata, servoRetrun);
-    if(isOK == NULL) return false;
-    else return true;
+    if(isOK != NULL){
+        isOK = NULL;
+        servoCommand[0] = {'\0'};
+        strcat(servoCommand, "#");
+        strcat(servoCommand, servoID);
+        strcat(servoCommand, "PMOD!");
+
+    }
+
 }
 
 bool SERVO::opendoor(){

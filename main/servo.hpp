@@ -3,23 +3,25 @@
 #pragma once
 
 #include <stdint.h>
+#include <string.h>
+#include "driver/uart.h" 
+#include "UARTtrans.hpp"
 
-class servo
+class SERVO
 {
 private:
-    uint8_t servoNum;
+    char servoID[4] = "000";   //舵机编号，默认为000
+    
 public:
-    servo(/* args */);  //构造函数
-    ~servo();           //析构函数
+    bool servo_init(void);
+    bool opendoor(void);
+    void setServoID(char out_servoID);
+    SERVO(char out_servoID);            //构造函数
+    ~SERVO();           //析构函数
+    
 };
 
-servo::servo(/* args */)
-{
-}
 
-servo::~servo()
-{
-}
 
 
 #endif

@@ -43,9 +43,9 @@ void init_uart2screen(void)         //配置连接到串口屏的UART
     uart_driver_install(UART_NUM_SCREEN, RX_BUF_SIZE * 2, 0, 0, NULL, 0);
 }
 
-void init_uart2servo(void)         //配置连接到串口屏的UART
+void init_uart2servo(void)         //配置连接到舵机的UART
 {
-    uart_param_config(UART_NUM_SCREEN, &uart2servo_config);
-    uart_set_pin(UART_NUM_SCREEN, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE);
-    uart_driver_install(UART_NUM_SCREEN, RX_BUF_SIZE * 2, 0, 0, NULL, 0);
+    uart_param_config(UART_NUM_SERVO, &uart2servo_config);
+    uart_set_pin(UART_NUM_SERVO, UART_NUM_SERVO_TX, UART_NUM_SERVO_RX, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE);
+    uart_driver_install(UART_NUM_SERVO, RX_BUF_SIZE * 2, 0, 0, NULL, 0);
 }

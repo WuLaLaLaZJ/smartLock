@@ -21,6 +21,6 @@ void init_uart2fri(void);
 void init_uart2screen(void);
 void init_uart2servo(void);
 
-char threeCharConnect(char char1,char char2,char char3);
+void fourCharConnect(char *sourceChar, const char *char1 = NULL, const char *char2 = NULL, const char *char3 = NULL, const char *char4 = NULL); //拼接字符串，便于构建串口指令
 
 #endif

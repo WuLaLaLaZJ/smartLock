@@ -1,12 +1,13 @@
 #include "servo.hpp"
 
-SERVO::SERVO(char out_servoID){
-    servoID[0] = out_servoID;
+SERVO::SERVO(char *out_servoID)
+{
+    strcpy(servoID, out_servoID);
     servo_init();
 }
 
-SERVO::~SERVO(){
-
+SERVO::~SERVO()
+{
 }
 
 /*******************************************************************************
@@ -16,37 +17,45 @@ SERVO::~SERVO(){
 ****函数备注: 无
 ********************************************************************************/
 
-bool SERVO::servo_init(){
+bool SERVO::servo_init()
+{
     init_uart2servo();
 
     char servoCommand[16];
-    fourCharConnect(servoCommand, "#", servoID, "PID!");                                //拼凑出一个获取舵机ID的指令
-
-    ESP_ERROR_CHECK((UART_NUM_SERVO,servoCommand,strlen(servoCommand)));                //发送，然后读取串口
+    strConnect(servoCommand, "#", servoID, "PID!");                                        // 拼凑出一个获取舵机ID的指令
+    ESP_ERROR_CHECK(uart_write_bytes(UART_NUM_SERVO, servoCommand, strlen(servoCommand))); // 发送，然后读取串口
     size_t bufferLenth;
     char UARTdata[64];
-    ESP_ERROR_CHECK(uart_get_buffered_data_len(UART_NUM_SERVO, &bufferLenth));
-    ESP_ERROR_CHECK(uart_read_bytes(UART_NUM_SERVO, UARTdata, bufferLenth, 100));
-    ESP_ERROR_CHECK(uart_flush(UART_NUM_SERVO));
-
-    char servoRetrun[8];
-    fourCharConnect(servoRetrun, "#", servoID, "!");                                    //拼凑出舵机“应该”有的返回值
-
-    char *isOK = NULL;                                                                  //串口读到的信息里有“应该”有的返回值吗？
+    servoUARTread(UARTdata);
+    char servoRetrun[16];
+    strConnect(servoRetrun, "#", servoID, "!"); // 拼凑出舵机“应该”有的返回值
+    char *isOK = NULL;                          // 串口读到的信息里有“应该”有的返回值吗？
     isOK = strstr(UARTdata, servoRetrun);
-    if(isOK != NULL){
+    if (isOK != NULL)
+    {
         isOK = NULL;
-        strcpy(servoCommand, "\0");
-        fourCharConnect(servoCommand, "#", servoCommand, "PMOD!");                      //舵机读取工作模式指令
         strcpy(UARTdata, "\0");
-        ESP_ERROR_CHECK(uart_get_buffered_data_len(UART_NUM_SERVO, &bufferLenth));
-        ESP_ERROR_CHECK(uart_read_bytes(UART_NUM_SERVO, UARTdata, bufferLenth, 100));
+        strcpy(servoRetrun, "\0");
+        strConnect(servoCommand, "#", servoID, "PMOD!"); // 舵机读取工作模式指令
+        ESP_ERROR_CHECK(uart_write_bytes(UART_NUM_SERVO, servoCommand, strlen(servoCommand)));
+        servoUARTread(UARTdata);
+        strConnect(servoRetrun, "#", servoID, "PMOD1!");
+        isOK = strstr(UARTdata, servoRetrun);
+        if (isOK != NULL)
+        {
+            strcpy(UARTdata, "\0");
+            strConnect(servoCommand, "#", servoID, "PMOD1!");
+            ESP_ERROR_CHECK(uart_write_bytes(UART_NUM_SERVO, servoCommand, strlen(servoCommand)));
+        }
+        return true;
+    }else{
+        return false;
     }
-
+    
 }
 
-bool SERVO::opendoor(){
-    char send[7];
-    uart_write_bytes(UART_NUM_SERVO, send , strlen(send));
-
+bool SERVO::opendoor()
+{
+    char servoCommand[7];
+    uart_write_bytes(UART_NUM_SERVO, servoCommand, strlen(servoCommand));
 }

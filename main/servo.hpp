@@ -15,7 +15,7 @@ public:
     bool servo_init(void);
     bool opendoor(void);
     void setServoID(char out_servoID);
-    SERVO(char out_servoID);            //构造函数
+    SERVO(char *out_servoID);            //构造函数
     ~SERVO();           //析构函数
     
 };

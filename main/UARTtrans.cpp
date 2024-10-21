@@ -50,10 +50,20 @@ void init_uart2servo(void)         //配置连接到舵机的UART
     uart_driver_install(UART_NUM_SERVO, RX_BUF_SIZE * 2, 0, 0, NULL, 0);
 }
 
-void fourCharConnect(char *sourceChar, char *char1 = NULL, char *char2 = NULL, char *char3 = NULL, char *char4 = NULL)
+void strConnect(char *sourceChar, char *char1 = NULL, char *char2 = NULL, char *char3 = NULL, char *char4 = NULL)
 {
+    char returnChar[16];
     if(char1 != NULL)       strcat(sourceChar, char1);
     else if (char2 != NULL) strcat(sourceChar, char2);
     else if (char3 != NULL) strcat(sourceChar, char3);
     else if (char4 != NULL) strcat(sourceChar, char4);
+    strcpy(sourceChar, returnChar);
+}
+
+void servoUARTread(char *UARTdata)
+{
+    size_t bufferLenth;
+    ESP_ERROR_CHECK(uart_get_buffered_data_len(UART_NUM_SERVO, &bufferLenth));
+    ESP_ERROR_CHECK(uart_read_bytes(UART_NUM_SERVO, UARTdata, bufferLenth, 100));
+    ESP_ERROR_CHECK(uart_flush(UART_NUM_SERVO));
 }

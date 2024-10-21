@@ -13,7 +13,7 @@ private:
     
 public:
     bool servo_init(void);
-    bool opendoor(void);
+    bool opendoor(char resetPos[5] = "0500", char openPos[5] = "2000");
     void setServoID(char out_servoID);
     SERVO(char *out_servoID);            //构造函数
     ~SERVO();           //析构函数

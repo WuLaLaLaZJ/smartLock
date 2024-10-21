@@ -1,6 +1,14 @@
+/*******************************************************************************
+****文件路径         : .\main\servo.cpp
+****作者名称         : Scaxlibur
+****文件版本         : V1.0.0
+****创建日期         : 2024-10-21 19:47:26
+****简要说明         : 开门舵机操作
+********************************************************************************/
+
 #include "servo.hpp"
 
-SERVO::SERVO(char *out_servoID)
+SERVO::SERVO(char out_servoID[4] = "000")
 {
     strcpy(servoID, out_servoID);
     servo_init();
@@ -8,6 +16,7 @@ SERVO::SERVO(char *out_servoID)
 
 SERVO::~SERVO()
 {
+    uart_driver_delete(UART_NUM_SERVO);
 }
 
 /*******************************************************************************
@@ -63,8 +72,8 @@ bool SERVO::servo_init()
 bool SERVO::opendoor(char resetPos[5] = "0500", char openPos[5] = "2000")
 {
     char servoCommand[16];
-    strConnect(servoCommand, "#", servoID, "P", openPos, "T1000");
+    strConnect(servoCommand, "#", servoID, "P", openPos, "T1000!");                                  //#000P2000T1000!
     uart_write_bytes(UART_NUM_SERVO, servoCommand, strlen(servoCommand));
     vTaskDelay(1000);
-    strConnect(servoCommand, "#", servoID, "P", resetPos, "T1000");
+    strConnect(servoCommand, "#", servoID, "P", resetPos, "T1000!");
 }

@@ -31,23 +31,23 @@ const uart_config_t uart2servo_config = {
 
 void init_uart2fri(void)            //配置连接到指纹识别器的UART
 {
-    uart_param_config(UART_NUM_FPI, &uart2fri_config);
-    uart_set_pin(UART_NUM_FPI, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE);
-    uart_driver_install(UART_NUM_FPI, RX_BUF_SIZE * 2, 0, 0, NULL, 0);
+    ESP_ERROR_CHECK(uart_param_config(UART_NUM_FPI, &uart2fri_config));
+    ESP_ERROR_CHECK(uart_set_pin(UART_NUM_FPI, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE));
+    ESP_ERROR_CHECK(uart_driver_install(UART_NUM_FPI, RX_BUF_SIZE * 2, 0, 0, NULL, 0));
 }
 
 void init_uart2screen(void)         //配置连接到串口屏的UART
 {
-    uart_param_config(UART_NUM_SCREEN, &uart2screen_config);
-    uart_set_pin(UART_NUM_SCREEN, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE);
-    uart_driver_install(UART_NUM_SCREEN, RX_BUF_SIZE * 2, 0, 0, NULL, 0);
+    ESP_ERROR_CHECK(uart_param_config(UART_NUM_SCREEN, &uart2screen_config));
+    ESP_ERROR_CHECK(uart_set_pin(UART_NUM_SCREEN, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE));
+    ESP_ERROR_CHECK(uart_driver_install(UART_NUM_SCREEN, RX_BUF_SIZE * 2, 0, 0, NULL, 0));
 }
 
 void init_uart2servo(void)         //配置连接到舵机的UART
 {
-    uart_param_config(UART_NUM_SERVO, &uart2servo_config);
-    uart_set_pin(UART_NUM_SERVO, UART_NUM_SERVO_TX, UART_NUM_SERVO_RX, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE);
-    uart_driver_install(UART_NUM_SERVO, RX_BUF_SIZE * 2, 0, 0, NULL, 0);
+    ESP_ERROR_CHECK(uart_param_config(UART_NUM_SERVO, &uart2servo_config));
+    ESP_ERROR_CHECK(uart_set_pin(UART_NUM_SERVO, UART_NUM_SERVO_TX, UART_NUM_SERVO_RX, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE));
+    ESP_ERROR_CHECK(uart_driver_install(UART_NUM_SERVO, RX_BUF_SIZE * 2, 0, 0, NULL, 0));
 }
 
 void strConnect(char *sourceChar, const char *char1 = NULL, const char *char2 = NULL, const char *char3 = NULL, const char *char4 = NULL, const char *char5 = NULL)

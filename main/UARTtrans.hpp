@@ -5,9 +5,9 @@
 #include "driver/uart.h" 
 #include <string.h>
 
-#define UART_NUM_FPI UART_NUM_0 //fingerPrintIdentify的意思
-#define UART_NUM_FPI_TX UART_PIN_NO_CHANGE
-#define UART_NUM_FPI_RX UART_PIN_NO_CHANGE
+#define UART_NUM_ID UART_NUM_0
+#define UART_NUM_ID_TX UART_PIN_NO_CHANGE
+#define UART_NUM_ID_RX UART_PIN_NO_CHANGE
 #define UART_NUM_SCREEN UART_NUM_1
 #define UART_NUM_SCREEN_TX UART_PIN_NO_CHANGE
 #define UART_NUM_SCREEN_RX UART_PIN_NO_CHANGE
@@ -17,7 +17,7 @@
 
 
 
-void init_uart2fri(void);
+void init_uart2id(void);
 void init_uart2screen(void);
 void init_uart2servo(void);
 

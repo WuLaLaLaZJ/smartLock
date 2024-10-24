@@ -16,11 +16,10 @@ class IDENTIFIER
     private:
     char32_t command = 5; 
     uint32_t IDaddr = 0XFFFFFFFF;
-    uint16_t packLength;
 
     public:
     bool ID_init();
-    void transCommand(uint8_t command);
+    void transCommand(uint16_t command, uint16_t parameter);
     IDENTIFIER();
     ~IDENTIFIER();
 };

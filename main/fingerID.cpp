@@ -28,9 +28,10 @@ bool IDENTIFIER::ID_init()
 ****函数备注: 包头+芯片地址+包标识01+包长度+指令+参数+校验和
 ********************************************************************************/
 
-void IDENTIFIER::transCommand(uint8_t command)
+void IDENTIFIER::transCommand(uint16_t command, uint16_t parameter)
 {
-    
-    char32_t command[5];
-    //ESP_ERROR_CHECK(uart_write_bytes(UART_NUM_ID, PACKHEAD, 2));
+    uint16_t packLength = 1 + 2; //包长度是包长度至校验和的总字节数，包含校验和，但不包含包长度本身的字节数。纯指令+校验和是3字节。
+    uint16_t checksum = packLength + command + parameter; //校验和是从包标识至校验和之间所有字节之和。
+    char32_t commandPack[8] = {PACKHEAD, IDaddr, COMMANDSIGN, packLength, command, parameter, checksum};
+    ESP_ERROR_CHECK(uart_write_bytes(UART_NUM_ID, commandPack, sizeof(commandPack)));//这里能否运行是个问号
 }

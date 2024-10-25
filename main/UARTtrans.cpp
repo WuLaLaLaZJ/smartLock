@@ -50,16 +50,19 @@ void init_uart2servo(void)         //配置连接到舵机的UART
     ESP_ERROR_CHECK(uart_driver_install(UART_NUM_SERVO, RX_BUF_SIZE * 2, 0, 0, NULL, 0));
 }
 
-void strConnect(char *sourceChar, const char *char1 = NULL, const char *char2 = NULL, const char *char3 = NULL, const char *char4 = NULL, const char *char5 = NULL)//是覆盖操作
+/*
+void strConnect(char *sourceChar, const char *char1 = NULL, const char *char2 = NULL, const char *char3 = NULL, const char *char4 = NULL, const char *char5 = NULL, const char *char6 = NULL)//是覆盖操作
 {
     char returnChar[16];
-    if(char1 != NULL)       strcat(sourceChar, char1);
-    else if (char2 != NULL) strcat(sourceChar, char2);
-    else if (char3 != NULL) strcat(sourceChar, char3);
-    else if (char4 != NULL) strcat(sourceChar, char4);
-    else if (char5 != NULL) strcat(sourceChar, char5);
+    if (char1 != NULL) strcat(returnChar, char1);
+    else if (char2 != NULL) strcat(returnChar, char2);
+    else if (char3 != NULL) strcat(returnChar, char3);
+    else if (char4 != NULL) strcat(returnChar, char4);
+    else if (char5 != NULL) strcat(returnChar, char5);
+    else if (char6 != NULL) strcat(returnChar, char6);
     strcpy(sourceChar, returnChar);
 }
+*/
 
 void servoUARTread(char *UARTdata)
 {

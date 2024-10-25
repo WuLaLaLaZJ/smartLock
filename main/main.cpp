@@ -6,8 +6,10 @@ extern "C" void app_main(void)
 {
     printf("开机了");
     init_uart2id();
+    //while(1){
+    char test[6] = "1234\n";
     while(1){
-    ESP_ERROR_CHECK(uart_write_bytes(UART_NUM_ID, "你好你好你好\n\n", strlen("你好你好你好\n\n")));//这里能否运行是个问号
+    uart_write_bytes(UART_NUM_ID, "1234", sizeof("1234"));//
     vTaskDelay(100);
     }
 }

@@ -32,7 +32,7 @@ bool SERVO::servo_init()
     strcat(servoCommand, "#");// 获取舵机ID的指令
     strcat(servoCommand, servoID);
     strcat(servoCommand, "PID!");
-    ESP_ERROR_CHECK(uart_write_bytes(UART_NUM_SERVO, servoCommand, strlen(servoCommand))); // 发送，然后读取串口
+    uart_write_bytes(UART_NUM_SERVO, servoCommand, strlen(servoCommand)); // 发送，然后读取串口
     char UARTdata[64];
     servoUARTread(UARTdata);
     strcat(servoRetrun, "#");// 拼凑出舵机“应该”有的返回值
@@ -49,7 +49,7 @@ bool SERVO::servo_init()
         strcat(servoCommand, "#");// 舵机读取工作模式指令
         strcat(servoCommand, servoID);
         strcat(servoCommand, "PMOD!");
-        ESP_ERROR_CHECK(uart_write_bytes(UART_NUM_SERVO, servoCommand, strlen(servoCommand)));
+        uart_write_bytes(UART_NUM_SERVO, servoCommand, strlen(servoCommand));
         servoUARTread(UARTdata);
         strcat(servoRetrun, "#");// 舵机的工作模式应该是舵机模式，顺时针最大270度，即1
         strcat(servoRetrun, servoID);
@@ -62,7 +62,7 @@ bool SERVO::servo_init()
             strcat(servoCommand, "#");
             strcat(servoCommand, servoID);
             strcat(servoCommand, "PMOD1!");
-            ESP_ERROR_CHECK(uart_write_bytes(UART_NUM_SERVO, servoCommand, strlen(servoCommand)));
+            uart_write_bytes(UART_NUM_SERVO, servoCommand, strlen(servoCommand));
         }
         return true;
     }

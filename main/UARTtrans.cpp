@@ -19,6 +19,7 @@ const uart_config_t uart2screen_config = {
     .flow_ctrl = UART_HW_FLOWCTRL_DISABLE,
     .source_clk = UART_SCLK_DEFAULT
 };
+     
 
 const uart_config_t uart2servo_config = {
     .baud_rate = 115200,

@@ -19,15 +19,15 @@
 class IDENTIFIER
 {
     private:
-    char32_t command = 5; 
+
     uint32_t IDaddr = 0XFFFFFFFF;
-    uint32_t AS608Addr = 0XFFFFFFFF;
     uint8_t Get_Device_Code[10] ={0x01,0x00,0x07,0x13,0x00,0x00,0x00,0x00,0x00,0x1b};//口令验证
     typedef struct  
     {
         uint16_t pageID;//指纹ID
         uint16_t mathscore;//匹配得分
     }SearchResult;
+
     typedef struct
     {
         uint16_t PS_max;//指纹最大容量
@@ -36,7 +36,6 @@ class IDENTIFIER
         uint8_t  PS_size;//通讯数据包大小
         uint8_t  PS_N;//波特率基数N
     }SysPara;
-
 
     void SendHead(void);
     void SendAddr(void);
@@ -47,10 +46,10 @@ class IDENTIFIER
     void JudgeStr(uint8_t *data);//判断中断接收的数组有没有应答包
 
     public:
-    bool ID_init();
-    void transCommand(uint16_t command, uint16_t parameter);
+
     IDENTIFIER();
     ~IDENTIFIER();
+
 
     bool AS608_Check(void);//连接检查
     uint8_t as608_init(void);//初始化

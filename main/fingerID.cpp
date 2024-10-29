@@ -8,32 +8,9 @@
 
 #include "fingerID.hpp"
 
-/*******************************************************************************
-****函数功能: 初始化指纹识别模块
-****入口参数: 无
-****出口参数: true: 设置成功 false: 设置失败
-****函数备注: 无
-********************************************************************************/
-
-bool IDENTIFIER::ID_init()
-{
-    return true;
-}
-
-
-/*******************************************************************************
-****函数功能: 发送命令包
-****入口参数: 指令
-****出口参数:
-****函数备注: 包头+芯片地址+包标识01+包长度+指令+参数+校验和
-********************************************************************************/
-
-void IDENTIFIER::transCommand(uint16_t command, uint16_t parameter)
-{
-    uint16_t packLength = 1 + 2; //包长度是包长度至校验和的总字节数，包含校验和，但不包含包长度本身的字节数。纯指令+校验和是3字节。
-    uint16_t checksum = packLength + command + parameter; //校验和是从包标识至校验和之间所有字节之和。
-    char32_t commandPack[8] = {PACKHEAD, IDaddr, COMMANDSIGN, packLength, command, parameter, checksum};
-    uart_write_bytes(UART_NUM_ID, commandPack, sizeof(commandPack));
+IDENTIFIER::IDENTIFIER(void){
+    init_uart2id();
+    as608_init();
 }
 
 void IDENTIFIER::SendHead(void)
@@ -99,7 +76,7 @@ uint8_t IDENTIFIER::as608_init(void)
 {
     //有几个中断设置，还没写
 	//设置uart3接收中断
-	//HAL_UART_Receive_IT(&AS608_UART,USART3_RX_BUF,sizeof( USART3_RX_BUF));//接收数据，且产生中断
+	//HAL_UART_Receive_IT(&AS608_UART,USART3_RX_BUF,sizeof(USART3_RX_BUF));//接收数据，且产生中断
 	//使能空闲中断
 	//HAL_UART_ENABLE_IT(&AS608_UART,UART_IT_IDLE);//
 	return AS608_Check();
@@ -110,10 +87,10 @@ void IDENTIFIER::JudgeStr(uint8_t *data)
     uint8_t str[8];
     str[0] = 0xef;
     str[1] = 0x01;
-    str[2] = AS608Addr >> 24;
-    str[3] = AS608Addr >> 16;
-    str[4] = AS608Addr >> 8;
-    str[5] = AS608Addr;
+    str[2] = IDaddr >> 24;
+    str[3] = IDaddr >> 16;
+    str[4] = IDaddr >> 8;
+    str[5] = IDaddr;
     str[6] = 0x07;
     str[7] = '\0';
     size_t uartSize;
@@ -429,13 +406,13 @@ uint8_t IDENTIFIER::PS_SetAddr(uint32_t PS_addr)
             + (uint8_t)(PS_addr >> 24) + (uint8_t)(PS_addr >> 16)
             + (uint8_t)(PS_addr >> 8) + (uint8_t)PS_addr;
     SendCheck(temp);
-    AS608Addr = PS_addr; //发送完指令，更换地址
+    IDaddr = PS_addr; //发送完指令，更换地址
     JudgeStr(data);
     if(data)
         ensure = data[9];
     else
         ensure = 0xff;
-    AS608Addr = PS_addr;
+    IDaddr = PS_addr;
     if(ensure == 0x00)
         printf("\r\n设置地址成功！");
     else
@@ -591,7 +568,7 @@ uint8_t IDENTIFIER::PS_HandShake(uint32_t *PS_Addr)
     ESP_ERROR_CHECK(uart_get_buffered_data_len(UART_NUM_ID, &uartSize));
     uart_read_bytes(UART_NUM_ID, &data, uartSize, 200/portTICK_PERIOD_MS);
     uart_flush(UART_NUM_ID);
-    if(uartSize != 0) //接收到数据,这是中断标记位
+    if(uartSize != 0) //接收到数据
     {
         if(
         data[0] == 0XEF

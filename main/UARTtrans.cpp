@@ -71,3 +71,7 @@ void servoUARTread(char *UARTdata)
     uart_read_bytes(UART_NUM_SERVO, UARTdata, bufferLenth, 100);
     ESP_ERROR_CHECK(uart_flush(UART_NUM_SERVO));
 }
+
+void send2id(uint8_t data){
+    uart_write_bytes(UART_NUM_ID, &data, 1);
+}

@@ -21,7 +21,9 @@ void init_uart2id(void);
 void init_uart2screen(void);
 void init_uart2servo(void);
 
-void strConnect();  //拼接字符串，便于构建串口指令
+void send2id(uint8_t data);
+
+//void strConnect();  //拼接字符串，便于构建串口指令
 void servoUARTread(char *UARTdata);                                                                                                         //接受舵机回值
 
 #endif

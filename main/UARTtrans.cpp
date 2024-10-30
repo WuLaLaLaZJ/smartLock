@@ -58,6 +58,18 @@ void servoUARTread(char *UARTdata)
     ESP_ERROR_CHECK(uart_flush(UART_NUM_SERVO));
 }
 
-void IDUARTwrite(uint8_t data){
+void IDUARTwrite_Bytes(uint8_t data)
+{
     uart_write_bytes(UART_NUM_ID, &data, 1);
+}
+
+
+void IDUARTwrite_Bytes(uint16_t data)
+{
+    uart_write_bytes(UART_NUM_ID, &data, 2);
+}
+
+void IDUARTwrite_Bytes(uint32_t data)
+{
+    uart_write_bytes(UART_NUM_ID, &data, 4);
 }

@@ -8,15 +8,16 @@
 #include <string.h>
 #include <stdio.h>
 
-#define PACKHEAD 0xEF01 //通信包头
+//#define PACKHEAD 0xEF01 //通信包头
 #define COMMANDSIGN 0x01 //命令包标识
 #define CharBuffer1 0x01
 #define CharBuffer2 0x02
 
+
 class IDENTIFIER
 {
     private:
-
+    const uint32_t packhead = 0xEF01;               //通信包头
     uint32_t IDaddr = 0XFFFFFFFF;
     uint8_t Get_Device_Code[10] ={0x01,0x00,0x07,0x13,0x00,0x00,0x00,0x00,0x00,0x1b};//口令验证
     typedef struct  

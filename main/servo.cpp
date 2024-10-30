@@ -19,6 +19,23 @@ SERVO::~SERVO()
     uart_driver_delete(UART_NUM_SERVO);
 }
 
+
+/*******************************************************************************
+****函数功能: 判断是否有返回值
+****入口参数: 无
+****出口参数: 
+****函数备注: 无
+********************************************************************************/
+void SERVO::JudgeStr(uint8_t *data)
+{
+    uint8_t str[8];
+    size_t uartSize;
+    ESP_ERROR_CHECK(uart_get_buffered_data_len(UART_NUM_SERVO, &uartSize));
+    uart_read_bytes(UART_NUM_ID, &data, uartSize, 200/portTICK_PERIOD_MS);
+    uart_flush(UART_NUM_ID);
+    data = (uint8_t *)strstr((const char*)data, (const char*)str);
+}
+
 /*******************************************************************************
 ****函数功能: 初始化舵机
 ****入口参数: 无

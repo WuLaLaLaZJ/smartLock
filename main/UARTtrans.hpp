@@ -15,15 +15,12 @@
 #define UART_NUM_SERVO_TX UART_PIN_NO_CHANGE
 #define UART_NUM_SERVO_RX UART_PIN_NO_CHANGE
 
-
-
 void init_uart2id(void);
 void init_uart2screen(void);
 void init_uart2servo(void);
 
-void send2id(uint8_t data);
+void IDUARTwrite(uint8_t data);
 
-//void strConnect();  //拼接字符串，便于构建串口指令
 void servoUARTread(char *UARTdata);                                                                                                         //接受舵机回值
 
 #endif

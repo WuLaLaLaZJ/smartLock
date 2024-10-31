@@ -61,3 +61,29 @@ void servoUARTread(char *UARTdata)
 void IDUARTwrite(uint8_t data){
     uart_write_bytes(UART_NUM_ID, &data, 1);
 }
+
+/*******************************************************************************
+****函数功能: 串口通信函数
+****出口参数: 无
+****函数备注: 解析串口接收到的上位机指令
+********************************************************************************/
+void command_loop(void)
+{
+  int length = 0;
+  uart_get_buffered_data_len(UART_NUM_SCREEN, (size_t*)&length);
+  // 如果串口是空的直接返回
+  if (length == 0) return;
+  char received_chars[10];
+  vTaskDelay(1 / portTICK_PERIOD_MS);
+  // 从串口读取返回的数据，读取20个字符
+  uart_read_bytes(UART_NUM_SCREEN, received_chars, length, 100);
+
+  // 根据指令做不同动作
+  if (received_chars[0] == 'F') // F指令设置
+  {
+
+  }
+  //  最后清空串口
+  while (length >= 0)
+    uart_flush(UART_NUM_SCREEN);
+}

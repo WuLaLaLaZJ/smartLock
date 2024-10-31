@@ -15,38 +15,34 @@ IDENTIFIER::IDENTIFIER(void){
 
 void IDENTIFIER::SendHead(void)
 {
-    IDUARTwrite(0xEF);
-    IDUARTwrite(0x01);
+    IDUARTwrite_Bytes(packhead);
 }
 
 void IDENTIFIER::SendAddr(void)
 {
-    IDUARTwrite(IDaddr >> 24);
-    IDUARTwrite(IDaddr >> 16);
-    IDUARTwrite(IDaddr >> 8);
-    IDUARTwrite(IDaddr);
+
+    IDUARTwrite_Bytes(IDaddr);
 }
 
 void IDENTIFIER::SendFlag(uint8_t flag)
 {
-    IDUARTwrite(flag);
+    IDUARTwrite_Bytes(flag);
 }
 
 void IDENTIFIER::SendLength(int length)
 {
-  IDUARTwrite(length >> 8);
-  IDUARTwrite(length);
+  IDUARTwrite_Bytes(length >> 8);
+  IDUARTwrite_Bytes(length);
 }
 
 void IDENTIFIER::Sendcmd(uint8_t cmd)
 {
-  IDUARTwrite(cmd);
+  IDUARTwrite_Bytes(cmd);
 }
 
 void IDENTIFIER::SendCheck(uint16_t check)
 {
-  IDUARTwrite(check >> 8);
-  IDUARTwrite(check);
+  IDUARTwrite_Bytes(check);
 }
 
 /*****************************************
@@ -62,7 +58,7 @@ bool IDENTIFIER::AS608_Check(void)
     uart_flush(UART_NUM_ID);
         for(int i = 0; i < 10; i++)
         {
-            IDUARTwrite(Get_Device_Code[i]);
+            IDUARTwrite_Bytes(Get_Device_Code[i]);
         }
         vTaskDelay(200 / portTICK_PERIOD_MS);//等待200ms
         size_t bufferLenth = 0;
@@ -132,7 +128,7 @@ uint8_t IDENTIFIER::PS_GenChar(uint8_t BufferID)
     SendFlag(COMMANDSIGN);
     SendLength(0x04);
     Sendcmd(0x02);
-    IDUARTwrite(BufferID);
+    IDUARTwrite_Bytes(BufferID);
     temp = 0x01 + 0x04 + 0x02 + BufferID;
     SendCheck(temp);
     JudgeStr(data);
@@ -180,11 +176,9 @@ uint8_t IDENTIFIER::PS_Search(uint8_t BufferID, uint16_t StartPage, uint16_t Pag
     SendFlag(COMMANDSIGN);//命令包标识
     SendLength(0x08);
     Sendcmd(0x04);
-    IDUARTwrite(BufferID);
-    IDUARTwrite(StartPage >> 8);
-    IDUARTwrite(StartPage);
-    IDUARTwrite(PageNum >> 8);
-    IDUARTwrite(PageNum);
+    IDUARTwrite_Bytes(BufferID);
+    IDUARTwrite_Bytes(StartPage);
+    IDUARTwrite_Bytes(PageNum);
     temp = 0x01 + 0x08 + 0x04 + BufferID
             + (StartPage >> 8) + (uint8_t)StartPage
             + (PageNum >> 8) + (uint8_t)PageNum;
@@ -239,9 +233,8 @@ uint8_t IDENTIFIER::PS_StoreChar(uint8_t BufferID, uint16_t PageID)
     SendFlag(0x01);//命令包标识
     SendLength(0x06);
     Sendcmd(0x06);
-    IDUARTwrite(BufferID);
-    IDUARTwrite(PageID >> 8);
-    IDUARTwrite(PageID);
+    IDUARTwrite_Bytes(BufferID);
+    IDUARTwrite_Bytes(PageID);
     temp = 0x01 + 0x06 + 0x06 + BufferID
             + (PageID >> 8) + (uint8_t)PageID;
     SendCheck(temp);
@@ -267,10 +260,9 @@ uint8_t IDENTIFIER::PS_DeletChar(uint16_t PageID, uint16_t N)
     SendFlag(0x01);//命令包标识
     SendLength(0x07);
     Sendcmd(0x0C);
-    IDUARTwrite(PageID >> 8);
-    IDUARTwrite(PageID);
-    IDUARTwrite(N >> 8);
-    IDUARTwrite(N);
+    IDUARTwrite_Bytes(PageID);
+    IDUARTwrite_Bytes(N >> 8);
+    IDUARTwrite_Bytes(N);
     temp = 0x01 + 0x07 + 0x0C
             + (PageID >> 8) + (uint8_t)PageID
             + (N >> 8) + (uint8_t)N;
@@ -321,8 +313,8 @@ uint8_t IDENTIFIER::PS_WriteReg(uint8_t RegNum, uint8_t DATA)
     SendFlag(0x01);//命令包标识
     SendLength(0x05);
     Sendcmd(0x0E);
-    IDUARTwrite(RegNum);
-    IDUARTwrite(DATA);
+    IDUARTwrite_Bytes(RegNum);
+    IDUARTwrite_Bytes(DATA);
     temp = RegNum + DATA + 0x01 + 0x05 + 0x0E;
     SendCheck(temp);
     JudgeStr(data);
@@ -393,10 +385,10 @@ uint8_t IDENTIFIER::PS_SetAddr(uint32_t PS_addr)
     SendFlag(0x01);//命令包标识
     SendLength(0x07);
     Sendcmd(0x15);
-    IDUARTwrite(PS_addr >> 24);
-    IDUARTwrite(PS_addr >> 16);
-    IDUARTwrite(PS_addr >> 8);
-    IDUARTwrite(PS_addr);
+    IDUARTwrite_Bytes(PS_addr >> 24);
+    IDUARTwrite_Bytes(PS_addr >> 16);
+    IDUARTwrite_Bytes(PS_addr >> 8);
+    IDUARTwrite_Bytes(PS_addr);
     temp = 0x01 + 0x07 + 0x15
             + (uint8_t)(PS_addr >> 24) + (uint8_t)(PS_addr >> 16)
             + (uint8_t)(PS_addr >> 8) + (uint8_t)PS_addr;
@@ -429,10 +421,10 @@ uint8_t IDENTIFIER::PS_WriteNotepad(uint8_t NotePageNum, uint8_t *Byte32)
     SendFlag(0x01);//命令包标识
     SendLength(36);
     Sendcmd(0x18);
-    IDUARTwrite(NotePageNum);
+    IDUARTwrite_Bytes(NotePageNum);
     for(uint8_t i = 0; i < 32; i++)
     {
-        IDUARTwrite(Byte32[i]);
+        IDUARTwrite_Bytes(Byte32[i]);
         temp = temp + Byte32[i];
     }
     temp = 0x01 + 36 + 0x18 + NotePageNum + temp;
@@ -459,7 +451,7 @@ uint8_t IDENTIFIER::PS_ReadNotepad(uint8_t NotePageNum, uint8_t *Byte32)
     SendFlag(0x01);//命令包标识
     SendLength(0x04);
     Sendcmd(0x19);
-    IDUARTwrite(NotePageNum);
+    IDUARTwrite_Bytes(NotePageNum);
     temp = 0x01 + 0x04 + 0x19 + NotePageNum;
     SendCheck(temp);
     JudgeStr(data);
@@ -492,11 +484,9 @@ uint8_t IDENTIFIER::PS_HighSpeedSearch(uint8_t BufferID, uint16_t StartPage, uin
     SendFlag(0x01);//命令包标识
     SendLength(0x08);
     Sendcmd(0x1b);
-    IDUARTwrite(BufferID);
-    IDUARTwrite(StartPage >> 8);
-    IDUARTwrite(StartPage);
-    IDUARTwrite(PageNum >> 8);
-    IDUARTwrite(PageNum);
+    IDUARTwrite_Bytes(BufferID);
+    IDUARTwrite_Bytes(StartPage);
+    IDUARTwrite_Bytes(PageNum);
     temp = 0x01 + 0x08 + 0x1b + BufferID
             + (StartPage >> 8) + (uint8_t)StartPage
             + (PageNum >> 8) + (uint8_t)PageNum;
@@ -554,15 +544,15 @@ uint8_t IDENTIFIER::PS_HandShake(uint32_t *PS_Addr)
 {
     SendHead();
     SendAddr();
-    IDUARTwrite(0X01);
-    IDUARTwrite(0X00);
-    IDUARTwrite(0X00);
-    vTaskDelay(200 / portTICK_PERIOD_MS);
+    IDUARTwrite_Bytes(0X01);
+    IDUARTwrite_Bytes(0X00);
+    IDUARTwrite_Bytes(0X00);
+    //vTaskDelay(200 / portTICK_PERIOD_MS);
     size_t uartSize;
     uint8_t data[16];
     ESP_ERROR_CHECK(uart_get_buffered_data_len(UART_NUM_ID, &uartSize));
     uart_read_bytes(UART_NUM_ID, &data, uartSize, 200/portTICK_PERIOD_MS);
-    uart_flush(UART_NUM_ID);
+    ESP_ERROR_CHECK(uart_flush(UART_NUM_ID));
     if(uartSize != 0) //接收到数据
     {
         if(

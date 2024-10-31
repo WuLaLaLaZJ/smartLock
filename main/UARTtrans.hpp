@@ -24,7 +24,9 @@ void init_uart2id(void);
 void init_uart2screen(void);
 void init_uart2servo(void);
 
-void IDUARTwrite(uint8_t data);
+void IDUARTwrite_Bytes(uint8_t data);
+void IDUARTwrite_Bytes(uint16_t data);
+void IDUARTwrite_Bytes(uint32_t data);
 
 void servoUARTread(char *UARTdata);                      //接受舵机回值
 

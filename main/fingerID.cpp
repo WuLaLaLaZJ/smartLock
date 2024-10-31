@@ -10,12 +10,13 @@
 
 IDENTIFIER::IDENTIFIER(void){
     init_uart2id();
+    SysPara AS608Para;
     as608_init();
 }
 
 void IDENTIFIER::SendHead(void)
 {
-    IDUARTwrite_Bytes(packhead);
+    IDUARTwrite_Bytes(PACKHEAD);
 }
 
 void IDENTIFIER::SendAddr(void)
@@ -29,9 +30,8 @@ void IDENTIFIER::SendFlag(uint8_t flag)
     IDUARTwrite_Bytes(flag);
 }
 
-void IDENTIFIER::SendLength(int length)
+void IDENTIFIER::SendLength(uint16_t length)
 {
-  IDUARTwrite_Bytes(length >> 8);
   IDUARTwrite_Bytes(length);
 }
 
@@ -53,18 +53,22 @@ void IDENTIFIER::SendCheck(uint16_t check)
 *****************************************/
 bool IDENTIFIER::AS608_Check(void)
 {
-    SendHead();
-    SendAddr();
-    uart_flush(UART_NUM_ID);
-        for(int i = 0; i < 10; i++)
-        {
-            IDUARTwrite_Bytes(Get_Device_Code[i]);
-        }
-        vTaskDelay(200 / portTICK_PERIOD_MS);//等待200ms
-        size_t bufferLenth = 0;
-        ESP_ERROR_CHECK(uart_get_buffered_data_len(UART_NUM_ID, &bufferLenth));
-        if(bufferLenth == 0)
-            return false;
+    //SendHead();
+    //SendAddr();
+    //uart_flush(UART_NUM_ID);
+    /*
+    for(int i = 0; i < 10; i++)
+    {
+        IDUARTwrite_Bytes(Get_Device_Code[i]);
+    }
+    */
+    //vTaskDelay(200 / portTICK_PERIOD_MS);//等待200ms
+    PS_GetRandomCode();
+    //size_t bufferLenth = 0;
+    //ESP_ERROR_CHECK(uart_get_buffered_data_len(UART_NUM_ID, &bufferLenth));
+    //if(bufferLenth == 0){
+    //    return false;
+    //}    
     return true;
 }
 
@@ -96,7 +100,7 @@ void IDENTIFIER::JudgeStr(uint8_t *data)
 //模块返回确认字
 uint8_t IDENTIFIER::PS_GetImage(void)
 {
-    uint16_t temp;
+    uint16_t sum;
     uint8_t  ensure;
     uint8_t  *data = NULL;
     SendHead();
@@ -104,8 +108,8 @@ uint8_t IDENTIFIER::PS_GetImage(void)
     SendFlag(COMMANDSIGN);
     SendLength(0x03);
     Sendcmd(0x01);
-    temp =  0x01 + 0x03 + 0x01;
-    SendCheck(temp);
+    sum =  0x01 + 0x03 + 0x01;
+    SendCheck(sum);
     JudgeStr(data);
     if(data)
         ensure = data[9];
@@ -120,7 +124,7 @@ uint8_t IDENTIFIER::PS_GetImage(void)
 //模块返回确认字
 uint8_t IDENTIFIER::PS_GenChar(uint8_t BufferID)
 {
-    uint16_t temp;
+    uint16_t sum;
     uint8_t  ensure;
     uint8_t  *data = NULL;
     SendHead();
@@ -129,8 +133,8 @@ uint8_t IDENTIFIER::PS_GenChar(uint8_t BufferID)
     SendLength(0x04);
     Sendcmd(0x02);
     IDUARTwrite_Bytes(BufferID);
-    temp = 0x01 + 0x04 + 0x02 + BufferID;
-    SendCheck(temp);
+    sum = 0x01 + 0x04 + 0x02 + BufferID;
+    SendCheck(sum);
     JudgeStr(data);
     if(data)
         ensure = data[9];
@@ -144,7 +148,7 @@ uint8_t IDENTIFIER::PS_GenChar(uint8_t BufferID)
 //模块返回确认字
 uint8_t IDENTIFIER::PS_Match(void)
 {
-    uint16_t temp;
+    uint16_t sum;
     uint8_t  ensure;
     uint8_t  *data = NULL;
     SendHead();
@@ -152,8 +156,8 @@ uint8_t IDENTIFIER::PS_Match(void)
     SendFlag(COMMANDSIGN);
     SendLength(0x03);
     Sendcmd(0x03);
-    temp = 0x01 + 0x03 + 0x03;
-    SendCheck(temp);
+    sum = 0x01 + 0x03 + 0x03;
+    SendCheck(sum);
     JudgeStr(data);
     if(data)
         ensure = data[9];
@@ -168,7 +172,7 @@ uint8_t IDENTIFIER::PS_Match(void)
 //说明:  模块返回确认字，页码（相配指纹模板）
 uint8_t IDENTIFIER::PS_Search(uint8_t BufferID, uint16_t StartPage, uint16_t PageNum, SearchResult *p)
 {
-    uint16_t temp;
+    uint16_t sum;
     uint8_t  ensure;
     uint8_t  *data = NULL;
     SendHead();
@@ -179,10 +183,10 @@ uint8_t IDENTIFIER::PS_Search(uint8_t BufferID, uint16_t StartPage, uint16_t Pag
     IDUARTwrite_Bytes(BufferID);
     IDUARTwrite_Bytes(StartPage);
     IDUARTwrite_Bytes(PageNum);
-    temp = 0x01 + 0x08 + 0x04 + BufferID
+    sum = 0x01 + 0x08 + 0x04 + BufferID
             + (StartPage >> 8) + (uint8_t)StartPage
             + (PageNum >> 8) + (uint8_t)PageNum;
-    SendCheck(temp);
+    SendCheck(sum);
     JudgeStr(data);
     if(data)
     {
@@ -200,7 +204,7 @@ uint8_t IDENTIFIER::PS_Search(uint8_t BufferID, uint16_t StartPage, uint16_t Pag
 //说明:  模块返回确认字
 uint8_t IDENTIFIER::PS_RegModel(void)
 {
-    uint16_t temp;
+    uint16_t sum;
     uint8_t  ensure;
     uint8_t  *data = NULL;
     SendHead();
@@ -208,8 +212,8 @@ uint8_t IDENTIFIER::PS_RegModel(void)
     SendFlag(COMMANDSIGN);//命令包标识
     SendLength(0x03);
     Sendcmd(0x05);
-    temp = 0x01 + 0x03 + 0x05;
-    SendCheck(temp);
+    sum = 0x01 + 0x03 + 0x05;
+    SendCheck(sum);
     JudgeStr(data);
     if(data)
         ensure = data[9];
@@ -225,7 +229,7 @@ uint8_t IDENTIFIER::PS_RegModel(void)
 //说明:  模块返回确认字
 uint8_t IDENTIFIER::PS_StoreChar(uint8_t BufferID, uint16_t PageID)
 {
-    uint16_t temp;
+    uint16_t sum;
     uint8_t  ensure;
     uint8_t  *data = NULL;
     SendHead();
@@ -235,9 +239,9 @@ uint8_t IDENTIFIER::PS_StoreChar(uint8_t BufferID, uint16_t PageID)
     Sendcmd(0x06);
     IDUARTwrite_Bytes(BufferID);
     IDUARTwrite_Bytes(PageID);
-    temp = 0x01 + 0x06 + 0x06 + BufferID
+    sum = 0x01 + 0x06 + 0x06 + BufferID
             + (PageID >> 8) + (uint8_t)PageID;
-    SendCheck(temp);
+    SendCheck(sum);
     JudgeStr(data);
     if(data)
         ensure = data[9];
@@ -252,7 +256,7 @@ uint8_t IDENTIFIER::PS_StoreChar(uint8_t BufferID, uint16_t PageID)
 //说明:  模块返回确认字
 uint8_t IDENTIFIER::PS_DeletChar(uint16_t PageID, uint16_t N)
 {
-    uint16_t temp;
+    uint16_t sum;
     uint8_t  ensure;
     uint8_t  *data = NULL;
     SendHead();
@@ -261,12 +265,11 @@ uint8_t IDENTIFIER::PS_DeletChar(uint16_t PageID, uint16_t N)
     SendLength(0x07);
     Sendcmd(0x0C);
     IDUARTwrite_Bytes(PageID);
-    IDUARTwrite_Bytes(N >> 8);
     IDUARTwrite_Bytes(N);
-    temp = 0x01 + 0x07 + 0x0C
+    sum = 0x01 + 0x07 + 0x0C
             + (PageID >> 8) + (uint8_t)PageID
             + (N >> 8) + (uint8_t)N;
-    SendCheck(temp);
+    SendCheck(sum);
     JudgeStr(data);
     if(data)
         ensure = data[9];
@@ -281,7 +284,7 @@ uint8_t IDENTIFIER::PS_DeletChar(uint16_t PageID, uint16_t N)
 //说明:  模块返回确认字
 uint8_t IDENTIFIER::PS_Empty(void)
 {
-    uint16_t temp;
+    uint16_t sum;
     uint8_t  ensure;
     uint8_t  *data = NULL;
     SendHead();
@@ -289,8 +292,8 @@ uint8_t IDENTIFIER::PS_Empty(void)
     SendFlag(0x01);//命令包标识
     SendLength(0x03);
     Sendcmd(0x0D);
-    temp = 0x01 + 0x03 + 0x0D;
-    SendCheck(temp);
+    sum = 0x01 + 0x03 + 0x0D;
+    SendCheck(sum);
     JudgeStr(data);
     if(data)
         ensure = data[9];
@@ -305,7 +308,7 @@ uint8_t IDENTIFIER::PS_Empty(void)
 //说明:  模块返回确认字
 uint8_t IDENTIFIER::PS_WriteReg(uint8_t RegNum, uint8_t DATA)
 {
-    uint16_t temp;
+    uint16_t sum;
     uint8_t  ensure;
     uint8_t  *data = NULL;
     SendHead();
@@ -315,8 +318,8 @@ uint8_t IDENTIFIER::PS_WriteReg(uint8_t RegNum, uint8_t DATA)
     Sendcmd(0x0E);
     IDUARTwrite_Bytes(RegNum);
     IDUARTwrite_Bytes(DATA);
-    temp = RegNum + DATA + 0x01 + 0x05 + 0x0E;
-    SendCheck(temp);
+    sum = RegNum + DATA + 0x01 + 0x05 + 0x0E;
+    SendCheck(sum);
     JudgeStr(data);
     if(data)
         ensure = data[9];
@@ -337,7 +340,7 @@ uint8_t IDENTIFIER::PS_WriteReg(uint8_t RegNum, uint8_t DATA)
 //说明:  模块返回确认字 + 基本参数（16bytes）
 uint8_t IDENTIFIER::PS_ReadSysPara(SysPara *p)
 {
-    uint16_t temp;
+    uint16_t sum;
     uint8_t  ensure;
     uint8_t  *data = NULL;
     SendHead();
@@ -345,8 +348,8 @@ uint8_t IDENTIFIER::PS_ReadSysPara(SysPara *p)
     SendFlag(0x01);//命令包标识
     SendLength(0x03);
     Sendcmd(0x0F);
-    temp = 0x01 + 0x03 + 0x0F;
-    SendCheck(temp);
+    sum = 0x01 + 0x03 + 0x0F;
+    SendCheck(sum);
     JudgeStr(data);
     if(data)
     {
@@ -377,22 +380,22 @@ uint8_t IDENTIFIER::PS_ReadSysPara(SysPara *p)
 //说明:  模块返回确认字
 uint8_t IDENTIFIER::PS_SetAddr(uint32_t PS_addr)
 {
-    uint16_t temp;
+    uint16_t sum;
     uint8_t  ensure;
     uint8_t  *data = NULL;
     SendHead();
     SendAddr();
-    SendFlag(0x01);//命令包标识
-    SendLength(0x07);
-    Sendcmd(0x15);
+    SendFlag(COMMANDSIGN);
+    SendLength((uint16_t)0x07);
+    Sendcmd((uint8_t)0x15);
     IDUARTwrite_Bytes(PS_addr >> 24);
     IDUARTwrite_Bytes(PS_addr >> 16);
     IDUARTwrite_Bytes(PS_addr >> 8);
     IDUARTwrite_Bytes(PS_addr);
-    temp = 0x01 + 0x07 + 0x15
+    sum = 0x01 + 0x07 + 0x15
             + (uint8_t)(PS_addr >> 24) + (uint8_t)(PS_addr >> 16)
             + (uint8_t)(PS_addr >> 8) + (uint8_t)PS_addr;
-    SendCheck(temp);
+    SendCheck(sum);
     IDaddr = PS_addr; //发送完指令，更换地址
     JudgeStr(data);
     if(data)
@@ -413,7 +416,7 @@ uint8_t IDENTIFIER::PS_SetAddr(uint32_t PS_addr)
 //说明:  模块返回确认字
 uint8_t IDENTIFIER::PS_WriteNotepad(uint8_t NotePageNum, uint8_t *Byte32)
 {
-    uint16_t temp = 0;
+    uint16_t sum = 0;
     uint8_t  ensure;
     uint8_t  *data = NULL;
     SendHead();
@@ -425,10 +428,10 @@ uint8_t IDENTIFIER::PS_WriteNotepad(uint8_t NotePageNum, uint8_t *Byte32)
     for(uint8_t i = 0; i < 32; i++)
     {
         IDUARTwrite_Bytes(Byte32[i]);
-        temp = temp + Byte32[i];
+        sum = sum + Byte32[i];
     }
-    temp = 0x01 + 36 + 0x18 + NotePageNum + temp;
-    SendCheck(temp);
+    sum = 0x01 + 36 + 0x18 + NotePageNum + sum;
+    SendCheck(sum);
     JudgeStr(data);
     if(data)
         ensure = data[9];
@@ -443,7 +446,7 @@ uint8_t IDENTIFIER::PS_WriteNotepad(uint8_t NotePageNum, uint8_t *Byte32)
 //说明:  模块返回确认字+用户信息
 uint8_t IDENTIFIER::PS_ReadNotepad(uint8_t NotePageNum, uint8_t *Byte32)
 {
-    uint16_t temp;
+    uint16_t sum;
     uint8_t  ensure, i;
     uint8_t  *data = NULL;
     SendHead();
@@ -452,8 +455,8 @@ uint8_t IDENTIFIER::PS_ReadNotepad(uint8_t NotePageNum, uint8_t *Byte32)
     SendLength(0x04);
     Sendcmd(0x19);
     IDUARTwrite_Bytes(NotePageNum);
-    temp = 0x01 + 0x04 + 0x19 + NotePageNum;
-    SendCheck(temp);
+    sum = 0x01 + 0x04 + 0x19 + NotePageNum;
+    SendCheck(sum);
     JudgeStr(data);
     if(data)
     {
@@ -476,7 +479,7 @@ uint8_t IDENTIFIER::PS_ReadNotepad(uint8_t NotePageNum, uint8_t *Byte32)
 //说明:  模块返回确认字+页码（相配指纹模板）
 uint8_t IDENTIFIER::PS_HighSpeedSearch(uint8_t BufferID, uint16_t StartPage, uint16_t PageNum, SearchResult *p)
 {
-    uint16_t temp;
+    uint16_t sum;
     uint8_t  ensure;
     uint8_t  *data = NULL;
     SendHead();
@@ -487,10 +490,10 @@ uint8_t IDENTIFIER::PS_HighSpeedSearch(uint8_t BufferID, uint16_t StartPage, uin
     IDUARTwrite_Bytes(BufferID);
     IDUARTwrite_Bytes(StartPage);
     IDUARTwrite_Bytes(PageNum);
-    temp = 0x01 + 0x08 + 0x1b + BufferID
+    sum = 0x01 + 0x08 + 0x1b + BufferID
             + (StartPage >> 8) + (uint8_t)StartPage
             + (PageNum >> 8) + (uint8_t)PageNum;
-    SendCheck(temp);
+    SendCheck(sum);
     JudgeStr(data);
     if(data)
     {
@@ -503,13 +506,13 @@ uint8_t IDENTIFIER::PS_HighSpeedSearch(uint8_t BufferID, uint16_t StartPage, uin
     return ensure;
 }
 
-//读有效模板个数 PS_ValidTempleteNum
+//读有效模板个数 PS_ValidsumleteNum
 //功能：读有效模板个数
 //参数: 无
 //说明: 模块返回确认字+有效模板个数ValidN
 uint8_t IDENTIFIER::PS_ValidTempleteNum(uint16_t *ValidN)
 {
-    uint16_t temp;
+    uint16_t sum;
     uint8_t  ensure;
     uint8_t  *data = NULL;
     SendHead();
@@ -517,8 +520,8 @@ uint8_t IDENTIFIER::PS_ValidTempleteNum(uint16_t *ValidN)
     SendFlag(0x01);//命令包标识
     SendLength(0x03);
     Sendcmd(0x1d);
-    temp = 0x01 + 0x03 + 0x1d;
-    SendCheck(temp);
+    sum = 0x01 + 0x03 + 0x1d;
+    SendCheck(sum);
     JudgeStr(data);
     if(data)
     {
@@ -544,9 +547,9 @@ uint8_t IDENTIFIER::PS_HandShake(uint32_t *PS_Addr)
 {
     SendHead();
     SendAddr();
-    IDUARTwrite_Bytes(0X01);
-    IDUARTwrite_Bytes(0X00);
-    IDUARTwrite_Bytes(0X00);
+    IDUARTwrite_Bytes(COMMANDSIGN);
+    IDUARTwrite_Bytes((uint8_t)0X00);
+    IDUARTwrite_Bytes((uint8_t)0X00);
     //vTaskDelay(200 / portTICK_PERIOD_MS);
     size_t uartSize;
     uint8_t data[16];
@@ -853,4 +856,39 @@ void IDENTIFIER::Del_FR(void)
     else
         ShowErrMessage(ensure);
     vTaskDelay(1500 / portTICK_PERIOD_MS);
+}
+
+uint32_t IDENTIFIER::PS_GetRandomCode()
+{
+    uint8_t  ensure;
+    uint8_t *data = NULL;
+    uint32_t randomCode = 0;
+    SendHead();
+    SendAddr();
+    SendFlag(COMMANDSIGN);
+    SendLength(0x03);
+    Sendcmd(0x14);
+    SendCheck(0x18);
+
+    JudgeStr(data);
+    if(data)
+    {
+        ensure = data[9];
+        randomCode = (data[10] << 24)+
+                     (data[11] << 16)+
+                     (data[12] << 8)+
+                      data[13];
+    }
+    else
+        ensure = 0x01;
+    
+    if(ensure == 0x00)
+    {
+        #ifdef TEST
+        printf("\r\n%lu", randomCode);
+        #endif
+    }
+    else
+        printf("\r\n%s", EnsureMessage(ensure));
+    return randomCode;
 }

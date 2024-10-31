@@ -2,14 +2,16 @@
 #define _fingerID_HPP
 #pragma once
 
+#define TEST
+
 #include <stdint.h>
 #include "UARTtrans.hpp"
 
 #include <string.h>
 #include <stdio.h>
 
-//#define PACKHEAD 0xEF01 //通信包头
-#define COMMANDSIGN 0x01 //命令包标识
+#define PACKHEAD ((uint16_t)0xEF01) //通信包头
+#define COMMANDSIGN ((uint8_t)0x01) //命令包标识
 #define CharBuffer1 0x01
 #define CharBuffer2 0x02
 
@@ -17,7 +19,7 @@
 class IDENTIFIER
 {
     private:
-    const uint32_t packhead = 0xEF01;               //通信包头
+
     uint32_t IDaddr = 0XFFFFFFFF;
     uint8_t Get_Device_Code[10] ={0x01,0x00,0x07,0x13,0x00,0x00,0x00,0x00,0x00,0x1b};//口令验证
     typedef struct  
@@ -38,17 +40,17 @@ class IDENTIFIER
     void SendHead(void);
     void SendAddr(void);
     void SendFlag(uint8_t flag);
-    void SendLength(int length);
+    void SendLength(uint16_t length);
     void Sendcmd(uint8_t cmd);
     void SendCheck(uint16_t check);
     void JudgeStr(uint8_t *data);//判断中断接收的数组有没有应答包
+
+
 
     public:
 
     IDENTIFIER();
     ~IDENTIFIER();
-
-
     bool AS608_Check(void);//连接检查
     uint8_t as608_init(void);//初始化
     uint8_t PS_GetImage(void); //录入图像 
@@ -67,6 +69,7 @@ class IDENTIFIER
     uint8_t PS_HighSpeedSearch(uint8_t BufferID,uint16_t StartPage,uint16_t PageNum,SearchResult *p);//高速搜索 
     uint8_t PS_ValidTempleteNum(uint16_t *ValidN);//读有效模板个数 
     uint8_t PS_HandShake(uint32_t *PS_Addr); //与AS608模块握手
+    uint32_t PS_GetRandomCode();//让模块发送一个随机数
     const char *EnsureMessage(uint8_t ensure);//确认码错误信息解析
     void ShowErrMessage(uint8_t ensure);
     void Add_FR(void);

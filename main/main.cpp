@@ -4,6 +4,7 @@
 
 extern "C" void app_main(void)
 {
+    /*现在都是测试*/
     printf("开机了");
     init_uart2id();
     //while(1){

@@ -15,11 +15,11 @@
 ****函数备注: 无
 ********************************************************************************/
 
-/*bool IDENTIFIER::ID_init()
+bool IDENTIFIER::ID_init()
 {
-
+    return true;
 }
-*/
+
 
 /*******************************************************************************
 ****函数功能: 发送命令包
@@ -33,5 +33,5 @@ void IDENTIFIER::transCommand(uint16_t command, uint16_t parameter)
     uint16_t packLength = 1 + 2; //包长度是包长度至校验和的总字节数，包含校验和，但不包含包长度本身的字节数。纯指令+校验和是3字节。
     uint16_t checksum = packLength + command + parameter; //校验和是从包标识至校验和之间所有字节之和。
     char32_t commandPack[8] = {PACKHEAD, IDaddr, COMMANDSIGN, packLength, command, parameter, checksum};
-    ESP_ERROR_CHECK(uart_write_bytes(UART_NUM_ID, commandPack, sizeof(commandPack)));//这里能否运行是个问号
+    uart_write_bytes(UART_NUM_ID, commandPack, sizeof(commandPack));
 }

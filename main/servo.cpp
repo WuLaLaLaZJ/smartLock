@@ -12,6 +12,7 @@ SERVO::SERVO(char out_servoID[4] = "000")
 {
     strcpy(servoID, out_servoID);
     servo_init();
+    printf("舵机对象构建");
 }
 
 SERVO::~SERVO()

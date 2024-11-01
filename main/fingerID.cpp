@@ -10,8 +10,9 @@
 
 IDENTIFIER::IDENTIFIER(void){
     init_uart2id();
-    SysPara AS608Para;
-    as608_init();
+    printf("指纹识别器对象已创建\n");
+    PS_GetRandomCode();//
+    //as608_init();
 }
 
 void IDENTIFIER::SendHead(void)
@@ -80,7 +81,7 @@ uint8_t IDENTIFIER::as608_init(void)
 void IDENTIFIER::JudgeStr(uint8_t *data)
 {
     uint8_t str[8];
-    str[0] = 0xef;
+    str[0] = 0xEF;
     str[1] = 0x01;
     str[2] = IDaddr >> 24;
     str[3] = IDaddr >> 16;
@@ -89,6 +90,7 @@ void IDENTIFIER::JudgeStr(uint8_t *data)
     str[6] = 0x07;
     str[7] = '\0';
     size_t uartSize;
+    vTaskDelay(200/portTICK_PERIOD_MS);
     ESP_ERROR_CHECK(uart_get_buffered_data_len(UART_NUM_ID, &uartSize));
     uart_read_bytes(UART_NUM_ID, &data, uartSize, 200/portTICK_PERIOD_MS);
     uart_flush(UART_NUM_ID);
@@ -861,7 +863,7 @@ void IDENTIFIER::Del_FR(void)
 uint32_t IDENTIFIER::PS_GetRandomCode()
 {
     uint8_t  ensure;
-    uint8_t *data = NULL;
+    uint8_t *data = NULL;    //这里原来是uint8_t *data = NULL
     uint32_t randomCode = 0;
     SendHead();
     SendAddr();
@@ -884,9 +886,7 @@ uint32_t IDENTIFIER::PS_GetRandomCode()
     
     if(ensure == 0x00)
     {
-        #ifdef TEST
         printf("\r\n%lu", randomCode);
-        #endif
     }
     else
         printf("\r\n%s", EnsureMessage(ensure));

@@ -21,7 +21,7 @@ class IDENTIFIER
     private:
 
     uint32_t IDaddr = 0XFFFFFFFF;
-    uint8_t Get_Device_Code[10] ={0x01,0x00,0x07,0x13,0x00,0x00,0x00,0x00,0x00,0x1b};//口令验证
+    uint32_t IDpwd = 0x00000000;//口令验证
     typedef struct  
     {
         uint16_t pageID;//指纹ID

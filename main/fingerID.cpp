@@ -11,8 +11,9 @@
 IDENTIFIER::IDENTIFIER(void){
     init_uart2id();
     printf("指纹识别器对象已创建\n");
-    PS_GetRandomCode();//
-    //as608_init();
+    vTaskDelay(200 / portTICK_PERIOD_MS);
+    AS608_Check();
+    PS_GetRandomCode();
 }
 
 void IDENTIFIER::SendHead(void)
@@ -54,22 +55,29 @@ void IDENTIFIER::SendCheck(uint16_t check)
 *****************************************/
 bool IDENTIFIER::AS608_Check(void)
 {
-    //SendHead();
-    //SendAddr();
-    //uart_flush(UART_NUM_ID);
-    /*
-    for(int i = 0; i < 10; i++)
-    {
-        IDUARTwrite_Bytes(Get_Device_Code[i]);
+    uart_flush(UART_NUM_ID);
+    SendHead();
+    SendAddr();
+    SendFlag(COMMANDSIGN);
+    SendLength((uint16_t)0x07);
+    Sendcmd((uint8_t)0x13);
+    IDUARTwrite_Bytes(IDpwd);
+    uint16_t sum = 0x07 + 0x13 + IDpwd;
+    SendCheck(sum); 
+    
+    vTaskDelay(200 / portTICK_PERIOD_MS);//等待200ms
+    //PS_GetRandomCode();
+    size_t bufferLenth = 0;
+    ESP_ERROR_CHECK(uart_get_buffered_data_len(UART_NUM_ID, &bufferLenth));
+    if(bufferLenth == 0){
+        #ifdef TEST
+        printf("AS608连接失败\n");
+        #endif  
+        return false;
     }
-    */
-    //vTaskDelay(200 / portTICK_PERIOD_MS);//等待200ms
-    PS_GetRandomCode();
-    //size_t bufferLenth = 0;
-    //ESP_ERROR_CHECK(uart_get_buffered_data_len(UART_NUM_ID, &bufferLenth));
-    //if(bufferLenth == 0){
-    //    return false;
-    //}    
+    #ifdef TEST
+        printf("AS608连接成功\n");
+    #endif    
     return true;
 }
 
@@ -94,7 +102,9 @@ void IDENTIFIER::JudgeStr(uint8_t *data)
     ESP_ERROR_CHECK(uart_get_buffered_data_len(UART_NUM_ID, &uartSize));
     uart_read_bytes(UART_NUM_ID, &data, uartSize, 200/portTICK_PERIOD_MS);
     uart_flush(UART_NUM_ID);
-    data = (uint8_t *)strstr((const char*)data, (const char*)str);
+    printf("JudgeStr()调用");
+    data = (uint8_t *)strstr((const char*)data, (const char*)str);//错误在这一行
+
 }
 
 //录入图像 PS_GetImage
@@ -544,7 +554,7 @@ uint8_t IDENTIFIER::PS_ValidTempleteNum(uint16_t *ValidN)
 
 //与AS608握手 PS_HandShake
 //参数: PS_Addr地址指针
-//说明: 模块返新地址（正确地址）
+//说明: 初始化必做
 uint8_t IDENTIFIER::PS_HandShake(uint32_t *PS_Addr)
 {
     SendHead();
@@ -863,7 +873,7 @@ void IDENTIFIER::Del_FR(void)
 uint32_t IDENTIFIER::PS_GetRandomCode()
 {
     uint8_t  ensure;
-    uint8_t *data = NULL;    //这里原来是uint8_t *data = NULL
+    uint8_t *data = NULL;
     uint32_t randomCode = 0;
     SendHead();
     SendAddr();
@@ -871,7 +881,7 @@ uint32_t IDENTIFIER::PS_GetRandomCode()
     SendLength(0x03);
     Sendcmd(0x14);
     SendCheck(0x18);
-
+    vTaskDelay(500 / portTICK_PERIOD_MS);
     JudgeStr(data);
     if(data)
     {
@@ -886,7 +896,9 @@ uint32_t IDENTIFIER::PS_GetRandomCode()
     
     if(ensure == 0x00)
     {
+        #ifdef TEST
         printf("\r\n%lu", randomCode);
+        #endif
     }
     else
         printf("\r\n%s", EnsureMessage(ensure));

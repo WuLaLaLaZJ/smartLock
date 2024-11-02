@@ -25,9 +25,11 @@ int main(void)
 	{
 		GPIO_WriteBit(GPIOA,GPIO_Pin_0,Bit_SET);
 		GPIO_WriteBit(GPIOA,GPIO_Pin_1,Bit_SET);
+		GPIO_WriteBit(GPIOA,GPIO_Pin_2,Bit_SET);
 		Delay_ms(1000);
 		GPIO_WriteBit(GPIOA,GPIO_Pin_0,Bit_RESET);
 		GPIO_WriteBit(GPIOA,GPIO_Pin_1,Bit_RESET);
+		GPIO_WriteBit(GPIOA,GPIO_Pin_2,Bit_SET);
 		Delay_ms(1000);
 		
 	}

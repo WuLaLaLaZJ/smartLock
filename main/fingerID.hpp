@@ -52,7 +52,6 @@ class IDENTIFIER
     IDENTIFIER();
     ~IDENTIFIER();
     bool AS608_Check(void);//连接检查
-    uint8_t as608_init(void);//初始化
     uint8_t PS_GetImage(void); //录入图像 
     uint8_t PS_GenChar(uint8_t BufferID);//生成特征 
     uint8_t PS_Match(void);//精确比对两枚指纹特征 

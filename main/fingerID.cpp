@@ -81,11 +81,6 @@ bool IDENTIFIER::AS608_Check(void)
     return true;
 }
 
-uint8_t IDENTIFIER::as608_init(void)
-{
-	return AS608_Check();
-}
-
 void IDENTIFIER::JudgeStr(uint8_t *data)
 {
     uint8_t str[8];
@@ -103,7 +98,7 @@ void IDENTIFIER::JudgeStr(uint8_t *data)
     uart_read_bytes(UART_NUM_ID, &data, uartSize, 200/portTICK_PERIOD_MS);
     uart_flush(UART_NUM_ID);
     printf("JudgeStr()调用");
-    data = (uint8_t *)strstr((const char*)data, (const char*)str);//错误在这一行
+    //data = (uint8_t *)strstr((const char*)data, (const char*)str);//错误在这一行
 
 }
 

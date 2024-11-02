@@ -18,12 +18,14 @@ int main(void)
 	//GPIO_WriteBit(GPIOA,GPIO_Pin_0,Bit_SET);//第三个变量是一个枚举enum变量,可以在Bit_RESET和Bit_SET中选择
 	
 	
+
+
 	while(1)
 	{
 		GPIO_WriteBit(GPIOA,GPIO_Pin_0,Bit_SET);		
-		Delay_ms(1000);
+		Delay_ms(500);
 		GPIO_WriteBit(GPIOA,GPIO_Pin_0,Bit_RESET);
-		Delay_ms(1000);
+		Delay_ms(500);
 		
-	}//使单片机程序进入死循环
+	}
 }

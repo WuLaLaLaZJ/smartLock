@@ -44,13 +44,6 @@ class IDENTIFIER
     void Sendcmd(uint8_t cmd);
     void SendCheck(uint16_t check);
     uint8_t *JudgeStr();//判断中断接收的数组有没有应答包
-
-
-
-    public:
-
-    IDENTIFIER();
-    ~IDENTIFIER();
     bool AS608_Check(void);//连接检查
     uint8_t PS_GetImage(void); //录入图像 
     uint8_t PS_GenChar(uint8_t BufferID);//生成特征 
@@ -71,6 +64,14 @@ class IDENTIFIER
     uint32_t PS_GetRandomCode();//让模块发送一个随机数
     const char *EnsureMessage(uint8_t ensure);//确认码错误信息解析
     void ShowErrMessage(uint8_t ensure);
+
+
+
+    public:
+
+    IDENTIFIER();
+    ~IDENTIFIER();
+
     void Add_FR(void);
     void press_FR(void);
     void Del_FR(void);

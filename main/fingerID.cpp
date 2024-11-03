@@ -103,7 +103,7 @@ uint8_t* IDENTIFIER::JudgeStr()
         printf("接收缓冲区%x字节\n", uartSize);
         #endif
     uart_read_bytes(UART_NUM_ID, receive, uartSize, 500/portTICK_PERIOD_MS);
-    return (uint8_t *)strstr((const char*)receive, (const char*)str);//错误在这一行
+    return (uint8_t *)strstr((const char*)receive, (const char*)str);
 }
 
 //录入图像 PS_GetImage
@@ -244,7 +244,7 @@ uint8_t IDENTIFIER::PS_StoreChar(uint8_t BufferID, uint16_t PageID)
     uint8_t  *data = NULL;
     SendHead();
     SendAddr();
-    SendFlag(0x01);//命令包标识
+    SendFlag(COMMANDSIGN);
     SendLength(0x06);
     Sendcmd(0x06);
     IDUARTwrite_Bytes(BufferID);
@@ -270,7 +270,7 @@ uint8_t IDENTIFIER::PS_DeletChar(uint16_t PageID, uint16_t N)
     uint8_t  *data = NULL;
     SendHead();
     SendAddr();
-    SendFlag(0x01);//命令包标识
+    SendFlag(COMMANDSIGN);
     SendLength(0x07);
     Sendcmd(0x0C);
     IDUARTwrite_Bytes(PageID);
@@ -297,7 +297,7 @@ uint8_t IDENTIFIER::PS_Empty(void)
     uint8_t  *data = NULL;
     SendHead();
     SendAddr();
-    SendFlag(0x01);//命令包标识
+    SendFlag(COMMANDSIGN);//命令包标识
     SendLength(0x03);
     Sendcmd(0x0D);
     sum = 0x01 + 0x03 + 0x0D;
@@ -320,7 +320,7 @@ uint8_t IDENTIFIER::PS_WriteReg(uint8_t RegNum, uint8_t DATA)
     uint8_t  *data = NULL;
     SendHead();
     SendAddr();
-    SendFlag(0x01);//命令包标识
+    SendFlag(COMMANDSIGN);//命令包标识
     SendLength(0x05);
     Sendcmd(0x0E);
     IDUARTwrite_Bytes(RegNum);
@@ -351,7 +351,7 @@ uint8_t IDENTIFIER::PS_ReadSysPara(SysPara *p)
     uint8_t  *data = NULL;
     SendHead();
     SendAddr();
-    SendFlag(0x01);//命令包标识
+    SendFlag(COMMANDSIGN);//命令包标识
     SendLength(0x03);
     Sendcmd(0x0F);
     sum = 0x01 + 0x03 + 0x0F;
@@ -425,7 +425,7 @@ uint8_t IDENTIFIER::PS_WriteNotepad(uint8_t NotePageNum, uint8_t *Byte32)
     uint8_t  *data = NULL;
     SendHead();
     SendAddr();
-    SendFlag(0x01);//命令包标识
+    SendFlag(COMMANDSIGN);//命令包标识
     SendLength(36);
     Sendcmd(0x18);
     IDUARTwrite_Bytes(NotePageNum);
@@ -454,7 +454,7 @@ uint8_t IDENTIFIER::PS_ReadNotepad(uint8_t NotePageNum, uint8_t *Byte32)
     uint8_t  *data = NULL;
     SendHead();
     SendAddr();
-    SendFlag(0x01);//命令包标识
+    SendFlag(COMMANDSIGN);//命令包标识
     SendLength(0x04);
     Sendcmd(0x19);
     IDUARTwrite_Bytes(NotePageNum);
@@ -486,7 +486,7 @@ uint8_t IDENTIFIER::PS_HighSpeedSearch(uint8_t BufferID, uint16_t StartPage, uin
     uint8_t  *data = NULL;
     SendHead();
     SendAddr();
-    SendFlag(0x01);//命令包标识
+    SendFlag(COMMANDSIGN);//命令包标识
     SendLength(0x08);
     Sendcmd(0x1b);
     IDUARTwrite_Bytes(BufferID);
@@ -518,7 +518,7 @@ uint8_t IDENTIFIER::PS_ValidTempleteNum(uint16_t *ValidN)
     uint8_t  *data = NULL;
     SendHead();
     SendAddr();
-    SendFlag(0x01);//命令包标识
+    SendFlag(COMMANDSIGN);//命令包标识
     SendLength(0x03);
     Sendcmd(0x1d);
     sum = 0x01 + 0x03 + 0x1d;
@@ -542,12 +542,11 @@ uint8_t IDENTIFIER::PS_ValidTempleteNum(uint16_t *ValidN)
 
 //与AS608握手 PS_HandShake
 //参数: PS_Addr地址指针
-//说明: 初始化必做
 uint8_t IDENTIFIER::PS_HandShake(uint32_t *PS_Addr)
 {
     SendHead();
     SendAddr();
-    IDUARTwrite_Bytes(COMMANDSIGN);
+    SendFlag(COMMANDSIGN);
     IDUARTwrite_Bytes((uint8_t)0X00);
     IDUARTwrite_Bytes((uint8_t)0X00);
     //vTaskDelay(200 / portTICK_PERIOD_MS);
@@ -807,9 +806,9 @@ void IDENTIFIER::press_FR(void)
             ensure = PS_HighSpeedSearch(CharBuffer1, 0, 99, &seach);
             if(ensure == 0x00) //搜索成功
             {
-                        printf("指纹验证成功");
-            //sprintf(str, " ID:%d 得分:%l ", seach.pageID, seach.mathscore);
-                        printf("%s\r\n",str);
+                printf("指纹验证成功\n");
+                //printf(str, " ID:%d 得分:%l ", seach.pageID, seach.mathscore);
+                //printf("%s\r\n",str);
             vTaskDelay(1500 / portTICK_PERIOD_MS);
             }
             else
@@ -819,8 +818,9 @@ void IDENTIFIER::press_FR(void)
             }
         }
         else
-                {};
-                printf("请按手指\r\n");
+        {                
+            printf("请按手指\r\n");
+        }
         }
     }
 }
@@ -887,8 +887,10 @@ uint32_t IDENTIFIER::PS_GetRandomCode()
         #endif
     }
     else
+    {
         #ifdef TEST
         printf("\r\n%s", EnsureMessage(ensure));
         #endif
+    }
     return randomCode;
 }

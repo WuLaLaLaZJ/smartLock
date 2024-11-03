@@ -97,12 +97,12 @@ uint8_t* IDENTIFIER::JudgeStr()
     str[6] = 0x07;
     str[7] = '\0';
     size_t uartSize;
-    vTaskDelay(1000/portTICK_PERIOD_MS);
+    vTaskDelay(500/portTICK_PERIOD_MS);
     ESP_ERROR_CHECK(uart_get_buffered_data_len(UART_NUM_ID, &uartSize));
         #ifdef TEST
         printf("接收缓冲区%x字节\n", uartSize);
         #endif
-    uart_read_bytes(UART_NUM_ID, receive, uartSize, 1000/portTICK_PERIOD_MS);
+    uart_read_bytes(UART_NUM_ID, receive, uartSize, 500/portTICK_PERIOD_MS);
     return (uint8_t *)strstr((const char*)receive, (const char*)str);//错误在这一行
 }
 
@@ -868,7 +868,6 @@ uint32_t IDENTIFIER::PS_GetRandomCode()
     SendLength(0x03);
     Sendcmd(0x14);
     SendCheck(0x18);
-    vTaskDelay(1000 / portTICK_PERIOD_MS);
     data = JudgeStr();    
     if(data)
     {

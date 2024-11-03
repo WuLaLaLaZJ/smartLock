@@ -26,16 +26,16 @@ void IDtask(void *arg)
     //identifier.Add_FR();
     while (1)
     {
-        //uint16_t valid;
-        //identifier.PS_ValidTempleteNum(&valid);
-        printf("调用\n");
+        identifier.PS_GetRandomCode();
+        #ifdef TEST
+        printf("\nIDtask任务调用\n");
+        #endif
         vTaskDelay(5000/portTICK_PERIOD_MS);
     }
 }
 
 extern "C" void app_main(void)
 {
-    /*现在都是测试*/
     printf("power on\n");
     //xTaskCreate(servotask, "servotask", 12 * 1024, NULL, 1, NULL);
     xTaskCreate(IDtask, "idtask", 12 * 1024, NULL, 1, NULL);

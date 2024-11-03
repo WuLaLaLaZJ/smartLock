@@ -13,11 +13,11 @@ IDENTIFIER::IDENTIFIER(void){
     printf("指纹识别器对象已创建\n");
     vTaskDelay(200 / portTICK_PERIOD_MS);
     AS608_Check();
-    PS_GetRandomCode();
 }
 
 void IDENTIFIER::SendHead(void)
 {
+    ESP_ERROR_CHECK(uart_flush(UART_NUM_ID));
     IDUARTwrite_Bytes(PACKHEAD);
 }
 
@@ -81,8 +81,12 @@ bool IDENTIFIER::AS608_Check(void)
     return true;
 }
 
-void IDENTIFIER::JudgeStr(uint8_t *data)
+uint8_t* IDENTIFIER::JudgeStr()
 {
+        #ifdef TEST
+        printf("JudgeStr()调用\n");
+        #endif
+    uint8_t receive[16];
     uint8_t str[8];
     str[0] = 0xEF;
     str[1] = 0x01;
@@ -93,13 +97,13 @@ void IDENTIFIER::JudgeStr(uint8_t *data)
     str[6] = 0x07;
     str[7] = '\0';
     size_t uartSize;
-    vTaskDelay(200/portTICK_PERIOD_MS);
+    vTaskDelay(1000/portTICK_PERIOD_MS);
     ESP_ERROR_CHECK(uart_get_buffered_data_len(UART_NUM_ID, &uartSize));
-    uart_read_bytes(UART_NUM_ID, &data, uartSize, 200/portTICK_PERIOD_MS);
-    uart_flush(UART_NUM_ID);
-    printf("JudgeStr()调用");
-    //data = (uint8_t *)strstr((const char*)data, (const char*)str);//错误在这一行
-
+        #ifdef TEST
+        printf("接收缓冲区%x字节\n", uartSize);
+        #endif
+    uart_read_bytes(UART_NUM_ID, receive, uartSize, 1000/portTICK_PERIOD_MS);
+    return (uint8_t *)strstr((const char*)receive, (const char*)str);//错误在这一行
 }
 
 //录入图像 PS_GetImage
@@ -117,7 +121,7 @@ uint8_t IDENTIFIER::PS_GetImage(void)
     Sendcmd(0x01);
     sum =  0x01 + 0x03 + 0x01;
     SendCheck(sum);
-    JudgeStr(data);
+    data = JudgeStr();
     if(data)
         ensure = data[9];
     else
@@ -142,7 +146,7 @@ uint8_t IDENTIFIER::PS_GenChar(uint8_t BufferID)
     IDUARTwrite_Bytes(BufferID);
     sum = 0x01 + 0x04 + 0x02 + BufferID;
     SendCheck(sum);
-    JudgeStr(data);
+    data = JudgeStr();
     if(data)
         ensure = data[9];
     else
@@ -165,7 +169,7 @@ uint8_t IDENTIFIER::PS_Match(void)
     Sendcmd(0x03);
     sum = 0x01 + 0x03 + 0x03;
     SendCheck(sum);
-    JudgeStr(data);
+    data = JudgeStr();
     if(data)
         ensure = data[9];
     else
@@ -194,7 +198,7 @@ uint8_t IDENTIFIER::PS_Search(uint8_t BufferID, uint16_t StartPage, uint16_t Pag
             + (StartPage >> 8) + (uint8_t)StartPage
             + (PageNum >> 8) + (uint8_t)PageNum;
     SendCheck(sum);
-    JudgeStr(data);
+    data = JudgeStr();    
     if(data)
     {
         ensure = data[9];
@@ -221,8 +225,7 @@ uint8_t IDENTIFIER::PS_RegModel(void)
     Sendcmd(0x05);
     sum = 0x01 + 0x03 + 0x05;
     SendCheck(sum);
-    JudgeStr(data);
-    if(data)
+    data = JudgeStr();    if(data)
         ensure = data[9];
     else
         ensure = 0xff;
@@ -249,8 +252,7 @@ uint8_t IDENTIFIER::PS_StoreChar(uint8_t BufferID, uint16_t PageID)
     sum = 0x01 + 0x06 + 0x06 + BufferID
             + (PageID >> 8) + (uint8_t)PageID;
     SendCheck(sum);
-    JudgeStr(data);
-    if(data)
+    data = JudgeStr();    if(data)
         ensure = data[9];
     else
         ensure = 0xff;
@@ -277,8 +279,7 @@ uint8_t IDENTIFIER::PS_DeletChar(uint16_t PageID, uint16_t N)
             + (PageID >> 8) + (uint8_t)PageID
             + (N >> 8) + (uint8_t)N;
     SendCheck(sum);
-    JudgeStr(data);
-    if(data)
+    data = JudgeStr();    if(data)
         ensure = data[9];
     else
         ensure = 0xff;
@@ -301,8 +302,7 @@ uint8_t IDENTIFIER::PS_Empty(void)
     Sendcmd(0x0D);
     sum = 0x01 + 0x03 + 0x0D;
     SendCheck(sum);
-    JudgeStr(data);
-    if(data)
+    data = JudgeStr();    if(data)
         ensure = data[9];
     else
         ensure = 0xff;
@@ -327,8 +327,7 @@ uint8_t IDENTIFIER::PS_WriteReg(uint8_t RegNum, uint8_t DATA)
     IDUARTwrite_Bytes(DATA);
     sum = RegNum + DATA + 0x01 + 0x05 + 0x0E;
     SendCheck(sum);
-    JudgeStr(data);
-    if(data)
+    data = JudgeStr();    if(data)
         ensure = data[9];
     else
         ensure = 0xff;
@@ -357,8 +356,7 @@ uint8_t IDENTIFIER::PS_ReadSysPara(SysPara *p)
     Sendcmd(0x0F);
     sum = 0x01 + 0x03 + 0x0F;
     SendCheck(sum);
-    JudgeStr(data);
-    if(data)
+    data = JudgeStr();    if(data)
     {
         ensure = data[9];
         p->PS_max = (data[14] << 8) + data[15];
@@ -404,8 +402,7 @@ uint8_t IDENTIFIER::PS_SetAddr(uint32_t PS_addr)
             + (uint8_t)(PS_addr >> 8) + (uint8_t)PS_addr;
     SendCheck(sum);
     IDaddr = PS_addr; //发送完指令，更换地址
-    JudgeStr(data);
-    if(data)
+    data = JudgeStr();    if(data)
         ensure = data[9];
     else
         ensure = 0xff;
@@ -439,8 +436,7 @@ uint8_t IDENTIFIER::PS_WriteNotepad(uint8_t NotePageNum, uint8_t *Byte32)
     }
     sum = 0x01 + 36 + 0x18 + NotePageNum + sum;
     SendCheck(sum);
-    JudgeStr(data);
-    if(data)
+    data = JudgeStr();    if(data)
         ensure = data[9];
     else
         ensure = 0xff;
@@ -464,8 +460,7 @@ uint8_t IDENTIFIER::PS_ReadNotepad(uint8_t NotePageNum, uint8_t *Byte32)
     IDUARTwrite_Bytes(NotePageNum);
     sum = 0x01 + 0x04 + 0x19 + NotePageNum;
     SendCheck(sum);
-    JudgeStr(data);
-    if(data)
+    data = JudgeStr();    if(data)
     {
         ensure = data[9];
         for(i = 0; i < 32; i++)
@@ -501,8 +496,7 @@ uint8_t IDENTIFIER::PS_HighSpeedSearch(uint8_t BufferID, uint16_t StartPage, uin
             + (StartPage >> 8) + (uint8_t)StartPage
             + (PageNum >> 8) + (uint8_t)PageNum;
     SendCheck(sum);
-    JudgeStr(data);
-    if(data)
+    data = JudgeStr();    if(data)
     {
         ensure = data[9];
         p->pageID 	= (data[10] << 8) + data[11];
@@ -529,8 +523,7 @@ uint8_t IDENTIFIER::PS_ValidTempleteNum(uint16_t *ValidN)
     Sendcmd(0x1d);
     sum = 0x01 + 0x03 + 0x1d;
     SendCheck(sum);
-    JudgeStr(data);
-    if(data)
+    data = JudgeStr();    if(data)
     {
         ensure = data[9];
         *ValidN = (data[10] << 8) + data[11];
@@ -805,7 +798,6 @@ void IDENTIFIER::press_FR(void)
     char str[20];
     while(1)
     {
-        //key_num = KEY_Scan(0);
         ensure = PS_GetImage();
         if(ensure == 0x00) //获取图像成功
         {
@@ -876,8 +868,8 @@ uint32_t IDENTIFIER::PS_GetRandomCode()
     SendLength(0x03);
     Sendcmd(0x14);
     SendCheck(0x18);
-    vTaskDelay(500 / portTICK_PERIOD_MS);
-    JudgeStr(data);
+    vTaskDelay(1000 / portTICK_PERIOD_MS);
+    data = JudgeStr();    
     if(data)
     {
         ensure = data[9];
@@ -892,10 +884,12 @@ uint32_t IDENTIFIER::PS_GetRandomCode()
     if(ensure == 0x00)
     {
         #ifdef TEST
-        printf("\r\n%lu", randomCode);
+        printf("\r随机数%lx\n", randomCode);
         #endif
     }
     else
+        #ifdef TEST
         printf("\r\n%s", EnsureMessage(ensure));
+        #endif
     return randomCode;
 }

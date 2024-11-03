@@ -43,7 +43,7 @@ class IDENTIFIER
     void SendLength(uint16_t length);
     void Sendcmd(uint8_t cmd);
     void SendCheck(uint16_t check);
-    void JudgeStr(uint8_t *data);//判断中断接收的数组有没有应答包
+    uint8_t *JudgeStr();//判断中断接收的数组有没有应答包
 
 
 

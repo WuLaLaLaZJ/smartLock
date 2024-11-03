@@ -23,10 +23,10 @@ void IDtask(void *arg)
 {
     IDENTIFIER identifier;      //创建指纹识别器对象    
     
-    //identifier.Add_FR();
+    identifier.Add_FR();
     while (1)
     {
-        identifier.PS_GetRandomCode();
+        identifier.press_FR();
         #ifdef TEST
         printf("\nIDtask任务调用\n");
         #endif

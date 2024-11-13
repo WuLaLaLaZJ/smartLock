@@ -41,16 +41,20 @@ void init_uart2id(void)            //配置连接到指纹识别器的UART
 
 void init_uart2screen(void)         //配置连接到串口屏的UART
 {
-    ESP_ERROR_CHECK(uart_param_config(UART_NUM_SCREEN, &uart2screen_config));
-    ESP_ERROR_CHECK(uart_set_pin(UART_NUM_SCREEN, UART_NUM_SCREEN_TX, UART_NUM_SCREEN_RX, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE));
-    ESP_ERROR_CHECK(uart_driver_install(UART_NUM_SCREEN, RX_BUF_SIZE * 2, 0, 0, NULL, 0));
+    if(uart_is_driver_installed(UART_NUM_SCREEN) == false){
+        ESP_ERROR_CHECK(uart_param_config(UART_NUM_SCREEN, &uart2screen_config));
+        ESP_ERROR_CHECK(uart_set_pin(UART_NUM_SCREEN, UART_NUM_SCREEN_TX, UART_NUM_SCREEN_RX, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE));
+        ESP_ERROR_CHECK(uart_driver_install(UART_NUM_SCREEN, RX_BUF_SIZE * 2, 0, 0, NULL, 0));
+    };
 }
 
 void init_uart2servo(void)         //配置连接到舵机的UART
 {
-    ESP_ERROR_CHECK(uart_param_config(UART_NUM_SERVO, &uart2servo_config));
-    ESP_ERROR_CHECK(uart_set_pin(UART_NUM_SERVO, UART_NUM_SERVO_TX, UART_NUM_SERVO_RX, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE));
-    ESP_ERROR_CHECK(uart_driver_install(UART_NUM_SERVO, RX_BUF_SIZE * 2, 0, 0, NULL, 0));
+    if(uart_is_driver_installed(UART_NUM_SERVO) == false){
+        ESP_ERROR_CHECK(uart_param_config(UART_NUM_SERVO, &uart2servo_config));
+        ESP_ERROR_CHECK(uart_set_pin(UART_NUM_SERVO, UART_NUM_SERVO_TX, UART_NUM_SERVO_RX, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE));
+        ESP_ERROR_CHECK(uart_driver_install(UART_NUM_SERVO, RX_BUF_SIZE * 2, 0, 0, NULL, 0));
+    };
 }
 
 void servoUARTread(char *UARTdata)
@@ -69,12 +73,20 @@ void IDUARTwrite_Bytes(uint8_t data)
 
 void IDUARTwrite_Bytes(uint16_t data)
 {
-    uart_write_bytes(UART_NUM_ID, &data, 2);
+    uint8_t data1 = data >> 8;
+    uart_write_bytes(UART_NUM_ID, &data1, 1);
+    uart_write_bytes(UART_NUM_ID, &data, 1);
 }
 
 void IDUARTwrite_Bytes(uint32_t data)
 {
-    uart_write_bytes(UART_NUM_ID, &data, 4);
+    uint8_t data1 = data >> 24;
+    uint8_t data2 = data >> 16;
+    uint8_t data3 = data >> 8;
+    uart_write_bytes(UART_NUM_ID, &data1, 1);
+    uart_write_bytes(UART_NUM_ID, &data2, 1);
+    uart_write_bytes(UART_NUM_ID, &data3, 1);
+    uart_write_bytes(UART_NUM_ID, &data, 1);
 }
 
 /*******************************************************************************
